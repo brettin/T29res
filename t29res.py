@@ -180,27 +180,22 @@ def run(gParameters):
     x = Dense(2000, activation=ACTIVATION)(inputs)
     x = Dense(1000, activation=ACTIVATION)(x)
 
-    connections=2
+    connections=3
     for i in range(connections):
-        x = f(x, gParameters, distance=3)
+        x = f(x, gParameters, distance=2 )
 
     x = Dropout(DR)(x)
 
     x = Dense(500, activation=ACTIVATION)(x)
     x = Dropout(DR)(x)
-
     x = Dense(250, activation=ACTIVATION)(x)
     x = Dropout(DR)(x)
-
     x = Dense(125, activation=ACTIVATION)(x)
     x = Dropout(DR)(x)
-
     x = Dense(62, activation=ACTIVATION)(x)
     x = Dropout(DR)(x)
-
     x = Dense(30, activation=ACTIVATION)(x)
     x = Dropout(DR)(x)
-
     outputs = Dense(2, activation='softmax')(x)
 
     model = Model(inputs=inputs, outputs=outputs)
