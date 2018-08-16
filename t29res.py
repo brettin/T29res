@@ -11,8 +11,8 @@ from keras.layers import Input, Dense, Dropout, Activation
 from keras.optimizers import SGD, Adam, RMSprop
 from keras.models import Sequential, Model, model_from_json, model_from_yaml
 from keras.utils import np_utils
-# from keras import backend as K
-from keras.callbacks import ModelCheckpoint, CSVLogger, ReduceLROnPlateau
+from keras import backend as K
+from keras.callbacks import ModelCheckpoint, CSVLogger, ReduceLROnPlateau, LearningRateScheduler
 from sklearn.metrics import accuracy_score
 from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
 
@@ -22,6 +22,9 @@ file_path = os.path.dirname(os.path.realpath(__file__))
 # sys.path.append(lib_path)
 sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Candle/common')
 sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Benchmarks/Pilot1/common')
+sys.path.append('/raid/brettin/Benchmarks/Pilot1/common')
+sys.path.append('/raid/brettin/Candle/common')
+
 import default_utils
 import keras_utils
 
@@ -67,6 +70,8 @@ def initialize_parameters():
 def load_data(nb_classes, PL):
     train_path = '/projects/CSC249ADOA01/brettin/T29_HyperparameterOptimization/T29res/rip.it.train.csv'
     test_path = '/projects/CSC249ADOA01/brettin/T29_HyperparameterOptimization/T29res/rip.it.test.csv'
+    train_path = '/raid/brettin/T29res/rip.it.train.csv'
+    test_path = '/raid/brettin/T29res/rip.it.test.csv'
 
     df_train = (pd.read_csv(train_path,header=None).values).astype('float32')
     df_test = (pd.read_csv(test_path,header=None).values).astype('float32')
@@ -101,6 +106,27 @@ def load_data(nb_classes, PL):
         
     return X_train, Y_train, X_test, Y_test
 
+def build_feature_model(input_shape, name='', dense_layers=[1000, 1000],
+                        activation='relu', residual=False,
+                        dropout_rate=0, permanent_dropout=True):
+    x_input = Input(shape=input_shape)
+    h = x_input
+    for i, layer in enumerate(dense_layers):
+        x = h
+        h = Dense(layer, activation=activation)(h)
+        if dropout_rate > 0:
+            if permanent_dropout:
+                h = PermanentDropout(dropout_rate)(h)
+            else:
+                h = Dropout(dropout_rate)(h)
+        if residual:
+            try:
+                h = keras.layers.add([h, x])
+            except ValueError:
+                pass
+    model = Model(x_input, h, name=name)
+    return model
+
 def run(gParameters):
     print ('gParameters: ', gParameters)
 
@@ -112,7 +138,7 @@ def run(gParameters):
     kerasDefaults = keras_default_config()
     kerasDefaults['momentum_sgd'] = gParameters['momentum']
     OPTIMIZER = keras_utils.build_optimizer(gParameters['optimizer'],
-                                        gParameters['learn_rate'],
+                                        gParameters['learning_rate'],
                                         kerasDefaults)
     PL     = 6213   # 38 + 60483
     PS     = 6212   # 60483
@@ -130,31 +156,30 @@ def run(gParameters):
 
     x = Dense(2000, activation=ACTIVATION)(inputs)
     x = Dense(1000, activation=ACTIVATION)(x)
-    x = Dropout(DR)(x)
 
-    # y is x plus another dense layer
-    y = Dense(1000, activation=ACTIVATION)(x)
+    # Input is x
+    def f(x):
+        x = Dropout(DR)(x)
+        y = Dense(1000, activation=ACTIVATION)(x)
+        z = ke.layers.add([x,y])
+    return z
 
-    # z is x + y plus a dropout creating our first residual connection
-    z = ke.layers.add([x,y])
+    x = f(x)
+
+
     z = Dropout(DR)(z)
-
     y = Dense(1000, activation=ACTIVATION)(z)
-
-    # x is y + z plus a dropout creating our second residual connection
     x = ke.layers.add([z,y])
+
     x = Dropout(DR)(x)
-
     y = Dense(1000, activation=ACTIVATION)(x)
-
-    # z is y + x plus a dropout creating our third residual connection
     z = ke.layers.add([x,y])
+
     z = Dropout(DR)(z)
-
     y = Dense(1000, activation=ACTIVATION)(z)
-
-    # x is y + z plus a dropout creating our fourth residual connection
     x = ke.layers.add([z,y])
+
+
     x = Dropout(DR)(x)
 
     x = Dense(500, activation=ACTIVATION)(x)
@@ -184,13 +209,28 @@ def run(gParameters):
     checkpointer = ModelCheckpoint(filepath='t29res.autosave.model.h5', verbose=0, save_weights_only=False, save_best_only=True)
     csv_logger = CSVLogger('t29res.training.log')
     reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.4, patience=10, verbose=1, mode='auto', epsilon=0.0001, cooldown=3, min_lr=0.000000001)
+    callbacks = [checkpointer, csv_logger, reduce_lr]
+
+    def warmup_scheduler(epoch):
+        lr=gParameters['learning_rate']
+        if epoch <= 4:
+            K.set_value(model.optimizer.lr, (lr * (epoch+1) / 5))
+        print ('Epoch {}: lr={}'.format(epoch, K.get_value(model.optimizer.lr)))
+        return K.get_value(model.optimizer.lr)
+
+    if 'warmup_lr' in gParameters:
+
+        warmup_lr = LearningRateScheduler(warmup_scheduler)
+        print("adding LearningRateScheduler")
+        callbacks.append(warmup_lr)
+
 
     history = model.fit(X_train, Y_train,
                     batch_size=BATCH,
                     epochs=EPOCH,
                     verbose=1,
                     validation_data=(X_test, Y_test),
-                    callbacks = [checkpointer, csv_logger, reduce_lr])
+                    callbacks = callbacks)
 
     score = model.evaluate(X_test, Y_test, verbose=0)
 
