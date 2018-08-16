@@ -24,6 +24,8 @@ sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimizati
 sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Benchmarks/Pilot1/common')
 sys.path.append('/raid/brettin/Benchmarks/Pilot1/common')
 sys.path.append('/raid/brettin/Candle/common')
+sys.path.append('/Users/brettin/local/git/Benchmarks/Pilot1/common')
+sys.path.append('/Users/brettin/local/git/Candle/common')
 
 import default_utils
 import keras_utils
@@ -72,6 +74,8 @@ def load_data(nb_classes, PL):
     test_path = '/projects/CSC249ADOA01/brettin/T29_HyperparameterOptimization/T29res/rip.it.test.csv'
     train_path = '/raid/brettin/T29res/rip.it.train.csv'
     test_path = '/raid/brettin/T29res/rip.it.test.csv'
+    train_path='/Users/brettin/local/git/T29res/rip.it.train.csv'
+    test_path='/Users/brettin/local/git/T29res/rip.it.test.csv'
 
     df_train = (pd.read_csv(train_path,header=None).values).astype('float32')
     df_test = (pd.read_csv(test_path,header=None).values).astype('float32')
@@ -127,6 +131,25 @@ def build_feature_model(input_shape, name='', dense_layers=[1000, 1000],
     model = Model(x_input, h, name=name)
     return model
 
+# Input is x
+def g(x):
+    i = x
+    x = Dropout(DR)(x)
+    y = Dense(1000, activation=ACTIVATION)(x)
+    z = ke.layers.add([i,y])
+    return z
+
+# x is input
+# distance is distance to residual connection
+def f(x, gParameters, distance=1):
+    input = x 
+    for i in range(distance):
+        if 'drop' in gParameters:
+            x = Dropout(gParameters['drop'])(x)
+        x = Dense(1000, activation=gParameters['activation'])(x)
+    y = ke.layers.add([input,x])
+    return y
+
 def run(gParameters):
     print ('gParameters: ', gParameters)
 
@@ -157,28 +180,9 @@ def run(gParameters):
     x = Dense(2000, activation=ACTIVATION)(inputs)
     x = Dense(1000, activation=ACTIVATION)(x)
 
-    # Input is x
-    def f(x):
-        x = Dropout(DR)(x)
-        y = Dense(1000, activation=ACTIVATION)(x)
-        z = ke.layers.add([x,y])
-    return z
-
-    x = f(x)
-
-
-    z = Dropout(DR)(z)
-    y = Dense(1000, activation=ACTIVATION)(z)
-    x = ke.layers.add([z,y])
-
-    x = Dropout(DR)(x)
-    y = Dense(1000, activation=ACTIVATION)(x)
-    z = ke.layers.add([x,y])
-
-    z = Dropout(DR)(z)
-    y = Dense(1000, activation=ACTIVATION)(z)
-    x = ke.layers.add([z,y])
-
+    connections=2
+    for i in range(connections):
+        x = f(x, gParameters, distance=3)
 
     x = Dropout(DR)(x)
 
