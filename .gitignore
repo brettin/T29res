@@ -4,6 +4,8 @@ predict_yaml_train.csv
 predict_yaml_train_classes.csv
 rip.it.test.csv
 rip.it.train.csv
+rip.it.test.tsv
+rip.it.train.tsv
 t29_default_model.txt
 t29res.R
 t29res.accuracy.pdf
