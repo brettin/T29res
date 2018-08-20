@@ -20,52 +20,36 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
 file_path = os.path.dirname(os.path.realpath(__file__))
 # lib_path = os.path.abspath(os.path.join(file_path, '..', '..', 'common'))
 # sys.path.append(lib_path)
-sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Candle/common')
-sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Benchmarks/Pilot1/common')
-sys.path.append('/raid/brettin/Benchmarks/Pilot1/common')
-sys.path.append('/raid/brettin/Candle/common')
-sys.path.append('/Users/brettin/local/git/Benchmarks/Pilot1/common')
-sys.path.append('/Users/brettin/local/git/Candle/common')
+# sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Candle/common')
+# sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Benchmarks/Pilot1/common')
+# sys.path.append('/raid/brettin/Benchmarks/Pilot1/common')
+# sys.path.append('/raid/brettin/Candle/common')
+# sys.path.append('/Users/brettin/local/git/Benchmarks/Pilot1/common')
+# sys.path.append('/Users/brettin/local/git/Candle/common')
+sys.path.append('/Users/brettin/local/git/Benchmarks/common')
 
-import default_utils
-import keras_utils
-
+# import default_utils
+# import keras_utils
+import candle_keras
 
 ### Start CANDLE Compliance 
-# import p1_common keras_default_config needs to be refactored out of p1_common
-# to candle.something
-def keras_default_config():
-    """Defines parameters that intervine in different functions using the keras defaults.
-        This helps to keep consistency in parameters between frameworks.
-    """
-
-    kerasDefaults = {}
-
-    # Optimizers
-    #kerasDefaults['clipnorm']=?            # Maximum norm to clip all parameter gradients
-    #kerasDefaults['clipvalue']=?          # Maximum (minimum=-max) value to clip all parameter gradients
-    kerasDefaults['decay_lr']=0.            # Learning rate decay over each update
-    kerasDefaults['epsilon']=1e-8           # Factor to avoid divide by zero (fuzz factor)
-    kerasDefaults['rho']=0.9                # Decay parameter in some optmizer updates (rmsprop, adadelta)
-    kerasDefaults['momentum_sgd']=0.        # Momentum for parameter update in sgd optimizer
-    kerasDefaults['nesterov_sgd']=False     # Whether to apply Nesterov momentum in sgd optimizer
-    kerasDefaults['beta_1']=0.9             # Parameter in some optmizer updates (adam, adamax, nadam)
-    kerasDefaults['beta_2']=0.999           # Parameter in some optmizer updates (adam, adamax, nadam)
-    kerasDefaults['decay_schedule_lr']=0.004# Parameter for nadam optmizer
-
-    # Initializers
-    kerasDefaults['minval_uniform']=-0.05   #  Lower bound of the range of random values to generate
-    kerasDefaults['maxval_uniform']=0.05    #  Upper bound of the range of random values to generate
-    kerasDefaults['mean_normal']=0.         #  Mean of the random values to generate
-    kerasDefaults['stddev_normal']=0.05     #  Standard deviation of the random values to generate
-
-    return kerasDefaults
-
 
 def initialize_parameters():
-    t29_common = default_utils.Benchmark(file_path, 't29_default_model.txt','keras',
+    t29_common = candle_keras.Benchmark(file_path, 't29_default_model.txt','keras',
                             prog='t29res.py',desc='resnet')
-    gParameters = default_utils.initialize_parameters(t29_common)
+
+    additional_definitions = [
+        {'name':'connections',
+         'default':1,
+         'type':int,
+         'help':'The number of residual connections.'},
+        {'name':'distance',
+         'default':1,
+         'type':int,
+         'help':'Residual connection distance between dense layers.'}
+    ]
+    t29_common.additional_definitions = additional_definitions
+    gParameters = candle_keras.initialize_parameters(t29_common)
     return gParameters
 
 
@@ -158,9 +142,9 @@ def run(gParameters):
     nb_classes = gParameters['classes']
     DR = gParameters['drop']
     ACTIVATION = gParameters['activation']
-    kerasDefaults = keras_default_config()
+    kerasDefaults = candle_keras.keras_default_config()
     kerasDefaults['momentum_sgd'] = gParameters['momentum']
-    OPTIMIZER = keras_utils.build_optimizer(gParameters['optimizer'],
+    OPTIMIZER = candle_keras.build_optimizer(gParameters['optimizer'],
                                         gParameters['learning_rate'],
                                         kerasDefaults)
     PL     = 6213   # 38 + 60483
@@ -180,9 +164,8 @@ def run(gParameters):
     x = Dense(2000, activation=ACTIVATION)(inputs)
     x = Dense(1000, activation=ACTIVATION)(x)
 
-    connections=3
-    for i in range(connections):
-        x = f(x, gParameters, distance=2 )
+    for i in range(gParameters['connections']):
+        x = f(x, gParameters, distance=gParameters['distance'] )
 
     x = Dropout(DR)(x)
 
