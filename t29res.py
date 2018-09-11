@@ -18,21 +18,9 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
 
 
 file_path = os.path.dirname(os.path.realpath(__file__))
-# lib_path = os.path.abspath(os.path.join(file_path, '..', '..', 'common'))
-# sys.path.append(lib_path)
-# sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Candle/common')
-# sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Benchmarks/Pilot1/common')
-# sys.path.append('/raid/brettin/Benchmarks/Pilot1/common')
-# sys.path.append('/raid/brettin/Candle/common')
-# sys.path.append('/Users/brettin/local/git/Benchmarks/Pilot1/common')
-# sys.path.append('/Users/brettin/local/git/Candle/common')
 sys.path.append('/raid/brettin/Benchmarks/common')
 
-# import default_utils
-# import keras_utils
 import candle_keras
-
-### Start CANDLE Compliance 
 
 def initialize_parameters():
     t29_common = candle_keras.Benchmark(file_path, 't29_default_model.txt','keras',
