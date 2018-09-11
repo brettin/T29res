@@ -26,7 +26,7 @@ file_path = os.path.dirname(os.path.realpath(__file__))
 # sys.path.append('/raid/brettin/Candle/common')
 # sys.path.append('/Users/brettin/local/git/Benchmarks/Pilot1/common')
 # sys.path.append('/Users/brettin/local/git/Candle/common')
-sys.path.append('/Users/brettin/local/git/Benchmarks/common')
+sys.path.append('/raid/brettin/Benchmarks/common')
 
 # import default_utils
 # import keras_utils
@@ -53,14 +53,9 @@ def initialize_parameters():
     return gParameters
 
 
-def load_data(nb_classes, PL):
-    train_path = '/projects/CSC249ADOA01/brettin/T29_HyperparameterOptimization/T29res/rip.it.train.csv'
-    test_path = '/projects/CSC249ADOA01/brettin/T29_HyperparameterOptimization/T29res/rip.it.test.csv'
-    train_path = '/raid/brettin/T29res/rip.it.train.csv'
-    test_path = '/raid/brettin/T29res/rip.it.test.csv'
-    train_path='/Users/brettin/local/git/T29res/rip.it.train.csv'
-    test_path='/Users/brettin/local/git/T29res/rip.it.test.csv'
-
+def load_data(nb_classes, PL, gParameters):
+    train_path=gParameters['train_path']
+    test_path=gParameters['test_path']
     df_train = (pd.read_csv(train_path,header=None).values).astype('float32')
     df_test = (pd.read_csv(test_path,header=None).values).astype('float32')
 
@@ -150,7 +145,7 @@ def run(gParameters):
     PL     = 6213   # 38 + 60483
     PS     = 6212   # 60483
 
-    X_train, Y_train, X_test, Y_test = load_data(nb_classes, PL)
+    X_train, Y_train, X_test, Y_test = load_data(nb_classes, PL, gParameters)
 
     print('X_train shape:', X_train.shape)
     print('X_test shape:', X_test.shape)
