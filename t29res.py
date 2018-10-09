@@ -18,14 +18,18 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
 
 
 file_path = os.path.dirname(os.path.realpath(__file__))
-sys.path.append('/raid/brettin/Benchmarks/common')
 
+# candle
+sys.path.append('/raid/brettin/Benchmarks/common')
 import candle_keras
 
+# candle
 def initialize_parameters():
     t29_common = candle_keras.Benchmark(file_path, 't29_default_model.txt','keras',
                             prog='t29res.py',desc='resnet')
 
+    # Need a pointer to the docs showing what is provided
+    # by default
     additional_definitions = [
         {'name':'connections',
          'default':1,
@@ -77,37 +81,12 @@ def load_data(nb_classes, PL, gParameters):
         
     return X_train, Y_train, X_test, Y_test
 
-def build_feature_model(input_shape, name='', dense_layers=[1000, 1000],
-                        activation='relu', residual=False,
-                        dropout_rate=0, permanent_dropout=True):
-    x_input = Input(shape=input_shape)
-    h = x_input
-    for i, layer in enumerate(dense_layers):
-        x = h
-        h = Dense(layer, activation=activation)(h)
-        if dropout_rate > 0:
-            if permanent_dropout:
-                h = PermanentDropout(dropout_rate)(h)
-            else:
-                h = Dropout(dropout_rate)(h)
-        if residual:
-            try:
-                h = keras.layers.add([h, x])
-            except ValueError:
-                pass
-    model = Model(x_input, h, name=name)
-    return model
-
-# Input is x
-def g(x):
-    i = x
-    x = Dropout(DR)(x)
-    y = Dense(1000, activation=ACTIVATION)(x)
-    z = ke.layers.add([i,y])
-    return z
-
 # x is input
 # distance is distance to residual connection
+
+# this is a function I added so that we could include
+# the distance between residually connected layers
+# and the number of residual connections needed
 def f(x, gParameters, distance=1):
     input = x 
     for i in range(distance):
@@ -117,6 +96,8 @@ def f(x, gParameters, distance=1):
     y = ke.layers.add([input,x])
     return y
 
+# This is required for candle compliance.
+# It essentially wraps what was in the implicit main funcion
 def run(gParameters):
     print ('gParameters: ', gParameters)
 
@@ -294,6 +275,8 @@ def run(gParameters):
 
     return history
 
+# This is also added for candle compliance so that the program can
+# still be executed independently from the command line.
 def main():
 
     gParameters = initialize_parameters()
