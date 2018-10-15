@@ -18,26 +18,18 @@ from sklearn.preprocessing import StandardScaler, MinMaxScaler, MaxAbsScaler
 
 
 file_path = os.path.dirname(os.path.realpath(__file__))
-# lib_path = os.path.abspath(os.path.join(file_path, '..', '..', 'common'))
-# sys.path.append(lib_path)
-# sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Candle/common')
-# sys.path.append('/home/brettin/CSC249ADOA01/brettin/T29_HyperparameterOptimization/Benchmarks/Pilot1/common')
-# sys.path.append('/raid/brettin/Benchmarks/Pilot1/common')
-# sys.path.append('/raid/brettin/Candle/common')
-# sys.path.append('/Users/brettin/local/git/Benchmarks/Pilot1/common')
-# sys.path.append('/Users/brettin/local/git/Candle/common')
-sys.path.append('/Users/brettin/local/git/Benchmarks/common')
 
-# import default_utils
-# import keras_utils
+# candle
+sys.path.append('/raid/brettin/Benchmarks/common')
 import candle_keras
 
-### Start CANDLE Compliance 
-
+# candle
 def initialize_parameters():
     t29_common = candle_keras.Benchmark(file_path, 't29_default_model.txt','keras',
                             prog='t29res.py',desc='resnet')
 
+    # Need a pointer to the docs showing what is provided
+    # by default
     additional_definitions = [
         {'name':'connections',
          'default':1,
@@ -53,14 +45,9 @@ def initialize_parameters():
     return gParameters
 
 
-def load_data(nb_classes, PL):
-    train_path = '/projects/CSC249ADOA01/brettin/T29_HyperparameterOptimization/T29res/rip.it.train.csv'
-    test_path = '/projects/CSC249ADOA01/brettin/T29_HyperparameterOptimization/T29res/rip.it.test.csv'
-    train_path = '/raid/brettin/T29res/rip.it.train.csv'
-    test_path = '/raid/brettin/T29res/rip.it.test.csv'
-    train_path='/Users/brettin/local/git/T29res/rip.it.train.csv'
-    test_path='/Users/brettin/local/git/T29res/rip.it.test.csv'
-
+def load_data(nb_classes, PL, gParameters):
+    train_path=gParameters['train_path']
+    test_path=gParameters['test_path']
     df_train = (pd.read_csv(train_path,header=None).values).astype('float32')
     df_test = (pd.read_csv(test_path,header=None).values).astype('float32')
 
@@ -94,10 +81,13 @@ def load_data(nb_classes, PL):
         
     return X_train, Y_train, X_test, Y_test
 
-
 # Create residual connections
 # x is input
 # distance is distance to residual connection
+
+# this is a function I added so that we could include
+# the distance between residually connected layers
+# and the number of residual connections needed
 def f(x, gParameters, distance=1):
     input = x 
     for i in range(distance):
@@ -107,6 +97,8 @@ def f(x, gParameters, distance=1):
     y = ke.layers.add([input,x])
     return y
 
+# This is required for candle compliance.
+# It essentially wraps what was in the implicit main funcion
 def run(gParameters):
     print ('gParameters: ', gParameters)
 
@@ -123,7 +115,7 @@ def run(gParameters):
     PL     = 6213   # 38 + 60483
     PS     = 6212   # 60483
 
-    X_train, Y_train, X_test, Y_test = load_data(nb_classes, PL)
+    X_train, Y_train, X_test, Y_test = load_data(nb_classes, PL, gParameters)
 
     print('X_train shape:', X_train.shape)
     print('X_test shape:', X_test.shape)
@@ -284,6 +276,8 @@ def run(gParameters):
 
     return history
 
+# This is also added for candle compliance so that the program can
+# still be executed independently from the command line.
 def main():
 
     gParameters = initialize_parameters()
