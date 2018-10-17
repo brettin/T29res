@@ -93,6 +93,7 @@ def run(gParameters):
     print('Y_test shape:', Y_test.shape)
 
     # load json and create model
+    candle_keras.register_permanent_dropout()
     json_file = open('t29res.model.json', 'r')
     loaded_model_json = json_file.read()
     json_file.close()
