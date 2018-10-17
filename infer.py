@@ -101,13 +101,13 @@ def run(gParameters):
     print('Y_test shape:', Y_test.shape)
 
     # load json and create model
-    json_file = open('t29res.model.json', 'r')
+    json_file = open(gParameters['model'], 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model_json = model_from_json(loaded_model_json)
 
     # load weights into new model
-    loaded_model_json.load_weights("t29res.model.h5")
+    loaded_model_json.load_weights(gParameters['weights'])
     print("Loaded json model from disk")
 
     # evaluate json loaded model on test data
