@@ -92,7 +92,7 @@ def f(x, gParameters, distance=1):
     input = x 
     for i in range(distance):
         if 'drop' in gParameters:
-            x = Dropout(gParameters['drop'])(x)
+            x = candle_keras.PermanentDropout(gParameters['drop'])(x)
         x = Dense(1000, activation=gParameters['activation'])(x)
     y = ke.layers.add([input,x])
     return y
@@ -132,18 +132,18 @@ def run(gParameters):
     for i in range(gParameters['connections']):
         x = f(x, gParameters, distance=gParameters['distance'] )
 
-    x = Dropout(DR)(x)
+    x = candle_keras.PermanentDropout(DR)(x)
 
     x = Dense(500, activation=ACTIVATION)(x)
-    x = Dropout(DR)(x)
+    x = candle_keras.PermanentDropout(DR)(x)
     x = Dense(250, activation=ACTIVATION)(x)
-    x = Dropout(DR)(x)
+    x = candle_keras.PermanentDropout(DR)(x)
     x = Dense(125, activation=ACTIVATION)(x)
-    x = Dropout(DR)(x)
+    x = candle_keras.PermanentDropout(DR)(x)
     x = Dense(62, activation=ACTIVATION)(x)
-    x = Dropout(DR)(x)
+    x = candle_keras.PermanentDropout(DR)(x)
     x = Dense(30, activation=ACTIVATION)(x)
-    x = Dropout(DR)(x)
+    x = candle_keras.PermanentDropout(DR)(x)
     outputs = Dense(2, activation='softmax')(x)
 
     model = Model(inputs=inputs, outputs=outputs)
