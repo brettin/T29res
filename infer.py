@@ -2,10 +2,10 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-import gzip
+# import gzip
 import keras as ke
-from keras.layers import Input, Dense, Dropout, Activation
-from keras.optimizers import SGD, Adam, RMSprop
+# from keras.layers import Input, Dense, Dropout, Activation
+# from keras.optimizers import SGD, Adam, RMSprop
 from keras.models import Sequential, Model, model_from_json, model_from_yaml
 from keras.utils import np_utils
 from keras import backend as K
@@ -36,7 +36,15 @@ def initialize_parameters():
         {'name':'distance',
          'default':1,
          'type':int,
-         'help':'Residual connection distance between dense layers.'}
+         'help':'Residual connection distance between dense layers.'},
+        {'name':'model',
+         'default':'model.json',
+         'type':str,
+         'help':'Name of json model description file'},
+        {'name':'weights',
+         'default':'model.h5',
+         'type':str,
+         'help':'Name of h5 weights file'}
     ]
     t29_common.additional_definitions = additional_definitions
     gParameters = candle_keras.initialize_parameters(t29_common)
@@ -94,13 +102,13 @@ def run(gParameters):
 
     # load json and create model
     candle_keras.register_permanent_dropout()
-    json_file = open('t29res.model.json', 'r')
+    json_file = open(gParameters['model'], 'r')
     loaded_model_json = json_file.read()
     json_file.close()
     loaded_model_json = model_from_json(loaded_model_json)
 
     # load weights into new model
-    loaded_model_json.load_weights("t29res.model.h5")
+    loaded_model_json.load_weights(gParameters['weights'])
     print("Loaded json model from disk")
 
     # evaluate json loaded model on test data
