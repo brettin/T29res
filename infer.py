@@ -65,11 +65,11 @@ def load_data(gParameters):
 
     Y_train = np_utils.to_categorical(df_y_train,gParameters['classes'])
     train_classes = np.argmax(Y_train, axis=1)
-    np.savetxt("train_classes.csv", train_classes, delimiter=",", fmt="%d")
+    # np.savetxt("train_classes.csv", train_classes, delimiter=",", fmt="%d")
     
     Y_test = np_utils.to_categorical(df_y_test,gParameters['classes'])
     test_classes = np.argmax(Y_test, axis=1)
-    np.savetxt("test_classes.csv", test_classes, delimiter=",", fmt="%d")
+    # np.savetxt("test_classes.csv", test_classes, delimiter=",", fmt="%d")
               
     df_x_train = df_train[:, 1:df_train.shape[1]].astype(np.float32)
     df_x_test = df_test[:, 1:df_train.shape[1]].astype(np.float32)
