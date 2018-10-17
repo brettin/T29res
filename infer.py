@@ -40,11 +40,11 @@ def initialize_parameters():
         {'name':'model',
          'default':'model.json',
          'type':str,
-         'help':'Name of json model description file'},
+         'help':'Name of json model description file.'},
         {'name':'weights',
          'default':'model.h5',
          'type':str,
-         'help':'Name of h5 weights file'}
+         'help':'Name of h5 weights file.'}
     ]
     t29_common.additional_definitions = additional_definitions
     gParameters = candle_keras.initialize_parameters(t29_common)
