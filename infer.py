@@ -112,12 +112,12 @@ def run(gParameters):
     print("Loaded json model from disk")
 
     # evaluate json loaded model on test data
-    loaded_model_json.compile(loss='binary_crossentropy', optimizer=gParameters['optimizer'], metrics=['accuracy'])
-    score_json = loaded_model_json.evaluate(X_test, Y_test, verbose=0)
+    # loaded_model_json.compile(loss='binary_crossentropy', optimizer=gParameters['optimizer'], metrics=['accuracy'])
+    # score_json = loaded_model_json.evaluate(X_test, Y_test, verbose=0)
 
-    print('json Validation loss:', score_json[0])
-    print('json Validation accuracy:', score_json[1])
-    print("json %s: %.2f%%" % (loaded_model_json.metrics_names[1], score_json[1]*100))
+    # print('json Validation loss:', score_json[0])
+    # print('json Validation accuracy:', score_json[1])
+    # print("json %s: %.2f%%" % (loaded_model_json.metrics_names[1], score_json[1]*100))
 
     # predict using loaded yaml model on test and training data
     predict_json_train = loaded_model_json.predict(X_train)
