@@ -2,10 +2,7 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-import gzip
 import keras as ke
-from keras.layers import Input, Dense, Dropout, Activation
-from keras.optimizers import SGD, Adam, RMSprop
 from keras.models import Sequential, Model, model_from_json, model_from_yaml
 from keras.utils import np_utils
 from keras import backend as K
