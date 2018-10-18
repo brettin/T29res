@@ -91,13 +91,8 @@ def load_data(gParameters):
 def run(gParameters):
     print ('gParameters: ', gParameters)
 
+    # load the data
     X_train, Y_train, X_test, Y_test = load_data(gParameters)
-
-    print('X_train shape:', X_train.shape)
-    print('X_test shape:', X_test.shape)
-
-    print('Y_train shape:', Y_train.shape)
-    print('Y_test shape:', Y_test.shape)
 
     # load json and create model
     candle_keras.register_permanent_dropout()
@@ -112,20 +107,15 @@ def run(gParameters):
 
     # predict using loaded yaml model on test and training data
     pred_test_df = pd.DataFrame()
-    pred_train_df = pd.DataFrame()
+    pred_test_classes_df = pd.DataFrame()
+
     for x in range(gParameters['n_pred']):
-        predict_json_test = loaded_model_json.predict(X_test)
+        predict_test = loaded_model_json.predict(X_test)
+        pred_test_df[x] = np.amax(predict_test, axis=1)
+        pred_test_classes_df[x] = np.argmax(predict_test, axis=1)
 
-        print('predict_test_shape:', predict_json_test.shape)
-
-        predict_json_test_classes = np.argmax(predict_json_test, axis=1)
-
-        pred_test_df[x] = predict_json_test_classes
-        np.savetxt(str(x) + "_predict_json_test.csv", predict_json_test, delimiter=",", fmt="%.3f")
-        np.savetxt(str(x) + "_predict_json_test_classes.csv", predict_json_test_classes, delimiter=",",fmt="%d")
-
-    print (pred_test_df.head())
-    pred_test_df.to_csv("predict_json_test.csv")
+    pred_test_df.to_csv("predict_test.csv")
+    pred_test_classes_df.to_csv("predict_test_classes.csv")
     return
 
 # This is also added for candle compliance so that the program can
