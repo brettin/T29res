@@ -110,8 +110,11 @@ def run(gParameters):
 
     for x in range(gParameters['n_pred']):
         predict_test = loaded_model_json.predict(X_test)
-        pred_test_df[x] = np.amax(predict_test, axis=1)
-        pred_test_classes_df[x] = np.argmax(predict_test, axis=1)
+        pred_test_df[str(x)] = np.amax(predict_test, axis=1)
+        pred_test_classes_df[str(x)] = np.argmax(predict_test, axis=1)
+
+    pred_test_df['mean'] = pred_test_df.mean(axis=1)
+    pred_test_df['std'] = pred_test_df.std(axis=1)
 
     pred_test_df.to_csv("predict_test.csv")
     pred_test_classes_df.to_csv("predict_test_classes.csv")
