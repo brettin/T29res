@@ -41,7 +41,11 @@ def initialize_parameters():
         {'name':'weights',
          'default':'model.h5',
          'type':str,
-         'help':'Name of h5 weights file.'}
+         'help':'Name of h5 weights file.'},
+        {'name':'n_pred',
+         'default':1,
+         'type':int,
+         'help':'Number of predictions to do on each sample.'}
     ]
     t29_common.additional_definitions = additional_definitions
     gParameters = candle_keras.initialize_parameters(t29_common)
