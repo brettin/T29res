@@ -104,13 +104,17 @@ def run(gParameters):
     loaded_model_json.load_weights(gParameters['weights'])
     print("Loaded json model from disk")
 
-    # predict using loaded json model on test and training data
-    predict_json_test = loaded_model_json.predict(X_test)
-    predict_json_test_classes = np.argmax(predict_json_test, axis=1)
+    # predict using loaded yaml model on test and training data
+    pred_test_df = pd.DataFrame()
+    pred_test_classes_df = pd.DataFrame()
 
-    np.savetxt("predict_json_test.csv", predict_json_test, delimiter=",", fmt="%.3f")
-    np.savetxt("predict_json_test_classes.csv", predict_json_test_classes, delimiter=",",fmt="%d")
+    for x in range(gParameters['n_pred']):
+        predict_test = loaded_model_json.predict(X_test)
+        pred_test_df[x] = np.amax(predict_test, axis=1)
+        pred_test_classes_df[x] = np.argmax(predict_test, axis=1)
 
+    pred_test_df.to_csv("predict_test.csv")
+    pred_test_classes_df.to_csv("predict_test_classes.csv")
     return
 
 # This is also added for candle compliance so that the program can
