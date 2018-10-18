@@ -65,11 +65,9 @@ def load_data(gParameters):
 
     Y_train = np_utils.to_categorical(df_y_train,gParameters['classes'])
     train_classes = np.argmax(Y_train, axis=1)
-    # np.savetxt("train_classes.csv", train_classes, delimiter=",", fmt="%d")
     
     Y_test = np_utils.to_categorical(df_y_test,gParameters['classes'])
     test_classes = np.argmax(Y_test, axis=1)
-    # np.savetxt("test_classes.csv", test_classes, delimiter=",", fmt="%d")
               
     df_x_train = df_train[:, 1:df_train.shape[1]].astype(np.float32)
     df_x_test = df_test[:, 1:df_train.shape[1]].astype(np.float32)
@@ -92,13 +90,8 @@ def load_data(gParameters):
 def run(gParameters):
     print ('gParameters: ', gParameters)
 
+    # load the data
     X_train, Y_train, X_test, Y_test = load_data(gParameters)
-
-    print('X_train shape:', X_train.shape)
-    print('X_test shape:', X_test.shape)
-
-    print('Y_train shape:', Y_train.shape)
-    print('Y_test shape:', Y_test.shape)
 
     # load json and create model
     json_file = open(gParameters['model'], 'r')
@@ -110,28 +103,11 @@ def run(gParameters):
     loaded_model_json.load_weights(gParameters['weights'])
     print("Loaded json model from disk")
 
-    # evaluate json loaded model on test data
-    # loaded_model_json.compile(loss='binary_crossentropy', optimizer=gParameters['optimizer'], metrics=['accuracy'])
-    # score_json = loaded_model_json.evaluate(X_test, Y_test, verbose=0)
-
-    # print('json Validation loss:', score_json[0])
-    # print('json Validation accuracy:', score_json[1])
-    # print("json %s: %.2f%%" % (loaded_model_json.metrics_names[1], score_json[1]*100))
-
-    # predict using loaded yaml model on test and training data
-    predict_json_train = loaded_model_json.predict(X_train)
+    # predict using loaded json model on test and training data
     predict_json_test = loaded_model_json.predict(X_test)
-
-    print('predict_train_train:', predict_json_train.shape)
-    print('predict_test_shape:', predict_json_test.shape)
-
-    predict_json_train_classes = np.argmax(predict_json_train, axis=1)
     predict_json_test_classes = np.argmax(predict_json_test, axis=1)
 
-    np.savetxt("predict_json_train.csv", predict_json_train, delimiter=",", fmt="%.3f")
     np.savetxt("predict_json_test.csv", predict_json_test, delimiter=",", fmt="%.3f")
-
-    np.savetxt("predict_json_train_classes.csv", predict_json_train_classes, delimiter=",",fmt="%d")
     np.savetxt("predict_json_test_classes.csv", predict_json_test_classes, delimiter=",",fmt="%d")
 
     return
