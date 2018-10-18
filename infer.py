@@ -44,7 +44,11 @@ def initialize_parameters():
         {'name':'weights',
          'default':'model.h5',
          'type':str,
-         'help':'Name of h5 weights file.'}
+         'help':'Name of h5 weights file.'},
+        {'name':'n_pred',
+         'default':1,
+         'type':int,
+         'help':'Number of predictions to do on each sample.'}
     ]
     t29_common.additional_definitions = additional_definitions
     gParameters = candle_keras.initialize_parameters(t29_common)
@@ -120,21 +124,27 @@ def run(gParameters):
     # print("json %s: %.2f%%" % (loaded_model_json.metrics_names[1], score_json[1]*100))
 
     # predict using loaded yaml model on test and training data
-    predict_json_train = loaded_model_json.predict(X_train)
-    predict_json_test = loaded_model_json.predict(X_test)
+    pred_test_df = pd.DataFrame()
+    pred_train_df = pd.DataFrame()
+    for x in range(gParameters['n_pred']):
+        predict_json_train = loaded_model_json.predict(X_train)
+        predict_json_test = loaded_model_json.predict(X_test)
 
-    print('predict_train_train:', predict_json_train.shape)
-    print('predict_test_shape:', predict_json_test.shape)
+        print('predict_train_train:', predict_json_train.shape)
+        print('predict_test_shape:', predict_json_test.shape)
 
-    predict_json_train_classes = np.argmax(predict_json_train, axis=1)
-    predict_json_test_classes = np.argmax(predict_json_test, axis=1)
+        predict_json_train_classes = np.argmax(predict_json_train, axis=1)
+        predict_json_test_classes = np.argmax(predict_json_test, axis=1)
 
-    np.savetxt("predict_json_train.csv", predict_json_train, delimiter=",", fmt="%.3f")
-    np.savetxt("predict_json_test.csv", predict_json_test, delimiter=",", fmt="%.3f")
+        pred_test_df[x] = predict_json_test_classes
+        np.savetxt(str(x) + "_predict_json_train.csv", predict_json_train, delimiter=",", fmt="%.3f")
+        np.savetxt(str(x) + "_predict_json_test.csv", predict_json_test, delimiter=",", fmt="%.3f")
 
-    np.savetxt("predict_json_train_classes.csv", predict_json_train_classes, delimiter=",",fmt="%d")
-    np.savetxt("predict_json_test_classes.csv", predict_json_test_classes, delimiter=",",fmt="%d")
+        np.savetxt(str(x) + "_predict_json_train_classes.csv", predict_json_train_classes, delimiter=",",fmt="%d")
+        np.savetxt(str(x) + "_predict_json_test_classes.csv", predict_json_test_classes, delimiter=",",fmt="%d")
 
+    print (pred_test_df.head())
+    pred_test_df.to_csv("predict_json_test.csv")
     return
 
 # This is also added for candle compliance so that the program can
