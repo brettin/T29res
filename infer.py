@@ -114,7 +114,6 @@ def run(gParameters):
         pred_test_df[str(x)] = np.amax(predict_test, axis=1)
         pred_test_classes_df[str(x)] = np.argmax(predict_test, axis=1)
 
-    print(pred_test_df.mean(axis=1))
     pred_test_df['mean'] = pred_test_df.mean(axis=1)
     pred_test_df['std'] = pred_test_df.std(axis=1)
 
